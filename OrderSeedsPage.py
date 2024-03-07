@@ -1,25 +1,51 @@
+# Header and description:
+# M08_final project
+# created: 2024-02-15 (tll)
+# revised: 2024-03-07 (tll)
+# 
+# Create a simple grapihical user interface with at least two screens, two images, two lables, three buttons, and two callback funcrtions
+
+# Pseudocode:
+# This file contains Order Seeds class and associated methods.
+# Selected color information is passed to this class from the Application when the "Order Seeds" button is clicked on the Home page. 
+# Define and instantiate the class. Instantiation needs to include the app settings, the frame, a color dictionary, and a list of page elements and any additional formatting.
+# Create an empty list to hold the screen elements to display.
+# Create an empty dictionary for flower colors. 
+# Use ImageTk and the os module to link to and import the flower images and create a variable for each image. 
+# Append entries to the flower color dictionary. Each entry should be keyed on flower color and include the flower name, a picture, a label, and the seed packet values.
+# The selected color data passed from the Home page is used to generate the screen elements to appended to the screen elements list.
+# This page should display the following: The images of the flowers available in the selected color, a button to add a packet of 50 seeds to the customer's order, 
+# a button to add a packet of 100 seeds to the customer's order, each button should also display the seed packet price. 
+# When a seed packet selection is made, users should be sent to an order summary page.  
+
+
+# Import TKInter and Image Tk
 from tkinter import *
 from PIL import ImageTk,Image
+
+# import os to get full file paths
 import os
 
-# create a class
+# create class
 class OrderSeeds:
     """A container for the code for the seed ordering pages"""
 
     def __init__(self, frame, oncomplete, app_settings):
-        """Instantiate Homepage class"""
+        """Logic used to create an instance of the Order Seeds Page"""
+
         self.oncomplete = oncomplete
         self.frame = frame
         self.app_settings = app_settings
         self.selected_packet = StringVar()
         self.color_dictionary = {}
+        self.page_elements = []
+
+        #add fonts
         self.Font_tuple_2 = ("Segoe UI", 14)
         self.Font_tuple_3 = ("Papyrus", 14)
-        # how does this page know what color was selected on the homepage?
-        #global flower_img_milkweed
-        ##global flower_img_cardinalflower
-        #global flower_img_yellow_alexanders
-        #global flower_img_yellow_coneflower
+        
+
+        # add image paths for flower images
         module_path = os.path.dirname(os.path.realpath(__file__))   
         milkweed_path_root = os.path.join(module_path, "swamp_milkweed.PNG")
         flower_img_milkweed = ImageTk.PhotoImage(Image.open(milkweed_path_root).resize(size = [260,260], resample = Image.Resampling.NEAREST))
@@ -38,7 +64,7 @@ class OrderSeeds:
         purple_ironweed_path_root = os.path.join(module_path,"purple_ironweed.PNG" )
         flower_img_purple_ironweed = ImageTk.PhotoImage(Image.open(purple_ironweed_path_root).resize(size = [260,260], resample = Image.Resampling.NEAREST))
         
-        # create dictionary to hold images.
+        # create dictionary to hold seed ordering information
         self.color_dictionary["red"]= []
         self.color_dictionary["red"].append({
             "name": "Swamp Milkweed", 
@@ -69,7 +95,7 @@ class OrderSeeds:
             "picture": flower_img_yellow_coneflower,
             "label": "flower_2_label",
             "50_value": "yellow_coneflower_50",
-            "100_value": "yellow_flower_100",
+            "100_value": "yellow_coneflower_100",
             })
         
         self.color_dictionary["blue"] = []
@@ -106,18 +132,29 @@ class OrderSeeds:
             "100_value": "purple_ironweed_100",
             })
     
-        # to call:  label = Label(self.frame, image = "color name"[loc. in array])
-     
+
+    # create a method to get selected flower data 
     def on_flower_select(self, flower, quantity):
         """Logic to send seed packet selections to main application"""
         """Used to create order and order total on order summary page"""
+
         self.oncomplete(flower, quantity)
 
+    # create a method to show all screen elements for selected color
     def show(self, selected_color):
         """Logic to add elements to screen and display the screen"""
+
         self.selected_color = selected_color.lower()
         column = 1  
-         
+
+        # remove screen elements when user moves away from screen    
+        for item in self.page_elements:
+            item.destroy()
+            
+        # create empty list to hold images, flower names, and seed packet sizes and prices
+        self.page_elements = [] 
+
+        # create a loop to display images and seed packet prices for flowers in the selected color    
         for item in self.color_dictionary[self.selected_color]:
             
             flower_label = Label(self.frame, image = item["picture"])
@@ -129,18 +166,22 @@ class OrderSeeds:
             small_packet.grid (column = column, row = 3, pady = 15)
             large_packet.grid (column = column, row = 4, pady=15)
             column += 1
+            self.page_elements.append(flower_label)
+            self.page_elements.append(flower_name)
+            self.page_elements.append(small_packet)
+            self.page_elements.append(large_packet)
+
+            # Unit testing to make sure seed packet information is getting passed to application as expected
+            # print(self.color_dictionary[item]["name"])
+            # print(self.price_dictionary[item]["value"])
+
 
 
         # add view order button
         """Used to send customers to order page to view their order totals"""
         next_button = Button(self.frame, text = "View Order",command = self.on_flower_select)
         next_button.grid(row = 8, column = 3, columnspan = 3)
+        self.page_elements.append(next_button)
        
-
-   
-
-    def destroy(self):
-        """Logic to close screen when user moves away from screen"""
-
 
 
